@@ -11,10 +11,12 @@ import WifiOffIcon from '@mui/icons-material/WifiOff';
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import type { AlertColor } from '@mui/material/Alert';
 
 import { motion } from 'framer-motion';
+
+// CAMBIO CLAVE: Importamos la URL centralizada
+import { API_BASE_URL } from '../apiConfig';
 
 // --- OFFLINE-FIRST IMPORTS ---
 import { db } from '../db/offlineDb';
@@ -28,7 +30,7 @@ interface DashboardProps {
   toggleColorMode: () => void;
 }
 
-const API_BASE_URL = "https://mi-todo-api.onrender.com/api/tasks";
+// Se elimina la URL hardcodeada de aquí
 
 const Dashboard: React.FC<DashboardProps> = ({ toggleColorMode }) => {
   const navigate = useNavigate();
@@ -37,7 +39,7 @@ const Dashboard: React.FC<DashboardProps> = ({ toggleColorMode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
-  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine); // <-- NUEVO ESTADO
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
 
   // Dialog states
   const [openTaskDialog, setOpenTaskDialog] = useState(false);
@@ -127,11 +129,11 @@ const Dashboard: React.FC<DashboardProps> = ({ toggleColorMode }) => {
                 if (task.temp_id) {
                     await db.tasks.delete(task.id);
                 } else {
-                    const response = await fetch(`${API_BASE_URL}/${task.id}`, { method: 'DELETE', headers });
+                    const response = await fetch(`${API_BASE_URL}/api/tasks/${task.id}`, { method: 'DELETE', headers });
                     if (response.ok || response.status === 404) await db.tasks.delete(task.id);
                 }
             } else if (task.temp_id) {
-                const response = await fetch(API_BASE_URL, {
+                const response = await fetch(`${API_BASE_URL}/api/tasks`, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify({ title: task.title, description: task.description, status: task.status, user_id: task.user_id })
@@ -144,7 +146,7 @@ const Dashboard: React.FC<DashboardProps> = ({ toggleColorMode }) => {
                     });
                 }
             } else {
-                const response = await fetch(`${API_BASE_URL}/${task.id}`, {
+                const response = await fetch(`${API_BASE_URL}/api/tasks/${task.id}`, {
                     method: 'PUT',
                     headers,
                     body: JSON.stringify({ title: task.title, description: task.description, status: task.status })
@@ -177,7 +179,8 @@ const Dashboard: React.FC<DashboardProps> = ({ toggleColorMode }) => {
     
     if (navigator.onLine) {
         try {
-            const response = await fetch(API_BASE_URL, { headers: { 'Authorization': `Bearer ${token}` } });
+            // CAMBIO CLAVE: Se usa la URL de la API para las tareas
+            const response = await fetch(`${API_BASE_URL}/api/tasks`, { headers: { 'Authorization': `Bearer ${token}` } });
             if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
             const serverTasks = await response.json();
@@ -293,7 +296,6 @@ const Dashboard: React.FC<DashboardProps> = ({ toggleColorMode }) => {
     if (userString) setLoggedInUsername(JSON.parse(userString).username || "");
     fetchInitialData();
 
-    // --- CAMBIO CLAVE: Manejadores de estado de conexión ---
     const handleOnline = () => {
         setIsOnline(true);
         handleOpenSnackbar("You are back online!", "success");
@@ -335,7 +337,6 @@ const Dashboard: React.FC<DashboardProps> = ({ toggleColorMode }) => {
   return (
     <Container maxWidth="lg">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-        {/* --- CAMBIO CLAVE: Indicador visual de estado offline --- */}
         {!isOnline && (
             <Alert severity="warning" icon={<WifiOffIcon />} sx={{ mt: 2, mb: 2 }}>
                 You are currently offline. Your changes will be saved locally and synced when you're back online.

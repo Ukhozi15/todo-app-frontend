@@ -14,6 +14,9 @@ import axios from "axios";
 import { Snackbar, Alert } from "@mui/material";
 import type { AlertColor } from "@mui/material/Alert";
 
+// CAMBIO CLAVE: Importamos la URL centralizada
+import { API_BASE_URL } from '../apiConfig';
+
 // Importaciones de iconos para los campos de texto
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import Lock from "@mui/icons-material/Lock";
@@ -21,7 +24,7 @@ import Lock from "@mui/icons-material/Lock";
 // Importación para animaciones de Framer Motion
 import { motion } from "framer-motion";
 
-const API_BASE_URL = "http://localhost:5000/api/users"; // URL base de tu API de usuarios
+// Se elimina la URL hardcodeada de aquí
 
 const Login: React.FC = () => {
   const navigate = useNavigate(); // Hook para la navegación
@@ -65,8 +68,8 @@ const Login: React.FC = () => {
     setLoading(true); // Activa el estado de carga para mostrar el spinner
 
     try {
-      // Realiza la petición POST al endpoint de login de tu backend
-      const response = await axios.post(`${API_BASE_URL}/login`, {
+      // CAMBIO CLAVE: Se usa la URL de la API para el login, apuntando a la ruta correcta
+      const response = await axios.post(`${API_BASE_URL}/api/users/login`, {
         email,
         password,
       });
@@ -121,28 +124,25 @@ const Login: React.FC = () => {
   };
 
   // --- Variantes de animación para Framer Motion ---
-  // Animación para el contenedor principal (la tarjeta Paper)
   const containerVariants = {
-    hidden: { opacity: 0, y: 50 }, // Inicia invisible y un poco abajo
+    hidden: { opacity: 0, y: 50 },
     visible: {
       opacity: 1,
       y: 0,
       transition: { duration: 0.6, ease: "easeOut" },
-    }, // Transición suave a la posición final
+    },
   };
 
-  // Animación para cada elemento dentro del formulario (campos, botón, enlace)
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 }, // Inicia invisible y un poco abajo
+    hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
       transition: { duration: 0.4, ease: "easeOut" },
-    }, // Transición suave a la posición final
+    },
   };
 
   return (
-    // Contenedor principal de la página, centra el formulario
     <Container
       component="main"
       maxWidth="xs"
@@ -153,14 +153,12 @@ const Login: React.FC = () => {
         justifyContent: "center",
       }}
     >
-      {/* motion.div para animar la entrada de la tarjeta Paper */}
       <motion.div
         initial="hidden"
         animate="visible"
         variants={containerVariants}
-        style={{ width: "100%" }} // Asegura que ocupe el ancho completo dentro del Container
+        style={{ width: "100%" }}
       >
-        {/* Componente Paper para la tarjeta del formulario con estilos de Material-UI */}
         <Paper
           elevation={6}
           sx={{
@@ -181,21 +179,18 @@ const Login: React.FC = () => {
             Welcome Back!
           </Typography>
 
-          {/* Mensaje de error general del formulario (debajo del título) */}
           {error && (
             <Typography color="error" variant="body2" sx={{ mb: 2 }}>
               {error}
             </Typography>
           )}
 
-          {/* Formulario de Login */}
           <Box
             component="form"
             noValidate
             sx={{ mt: 1, width: "100%" }}
             onSubmit={handleSubmit}
           >
-            {/* Campo Email con animación */}
             <motion.div variants={itemVariants}>
               <TextField
                 fullWidth
@@ -203,19 +198,17 @@ const Login: React.FC = () => {
                 margin="normal"
                 type="email"
                 required
-                variant="outlined" // Estilo con borde
+                variant="outlined"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                sx={{ mb: 2 }} // Margen inferior
+                sx={{ mb: 2 }}
                 InputProps={{
-                  // Icono en el campo
                   startAdornment: (
                     <InputAdornment position="start">
                       <AccountCircle color="action" />
                     </InputAdornment>
                   ),
                 }}
-                // Lógica para mostrar error si el campo está vacío y hay una advertencia del Snackbar
                 error={
                   snackbarOpen &&
                   snackbarSeverity === "warning" &&
@@ -230,7 +223,6 @@ const Login: React.FC = () => {
                 }
               />
             </motion.div>
-            {/* Campo Password con animación */}
             <motion.div variants={itemVariants}>
               <TextField
                 fullWidth
@@ -263,18 +255,15 @@ const Login: React.FC = () => {
                 }
               />
             </motion.div>
-            {/* Botón de Login con animación */}
             <motion.div variants={itemVariants}>
               <Button
                 fullWidth
                 variant="contained"
                 color="primary"
-                sx={{ mt: 2, py: 1.5, borderRadius: 2 }} // Padding y bordes redondeados
+                sx={{ mt: 2, py: 1.5, borderRadius: 2 }}
                 type="submit"
-                disabled={loading} // Deshabilita el botón durante la carga
-                whileTap={{ scale: 0.95 }} // Animación de escala al presionar
+                disabled={loading}
               >
-                {/* Muestra spinner o texto del botón */}
                 {loading ? (
                   <CircularProgress size={24} color="inherit" />
                 ) : (
@@ -284,19 +273,18 @@ const Login: React.FC = () => {
             </motion.div>
           </Box>
 
-          {/* Sección de "Don't have an account?" con animación */}
           <motion.div variants={itemVariants}>
             <Box sx={{ mt: 3 }}>
               <Typography variant="body2" color="text.secondary">
                 Don't have an account?{" "}
                 <Button
                   variant="text"
-                  onClick={() => navigate("/register")} // Redirige a la página de registro
+                  onClick={() => navigate("/register")}
                   sx={{
                     padding: 0,
                     minWidth: 0,
                     "&:hover": { textDecoration: "underline" },
-                  }} // Estilos de botón de texto
+                  }}
                 >
                   <Typography
                     variant="body2"
@@ -312,12 +300,11 @@ const Login: React.FC = () => {
         </Paper>
       </motion.div>
 
-      {/* Snackbar para mostrar mensajes de notificación */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={4000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }} // Posición del Snackbar
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
           onClose={handleCloseSnackbar}
