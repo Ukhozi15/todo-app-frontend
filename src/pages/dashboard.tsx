@@ -28,7 +28,7 @@ interface DashboardProps {
   toggleColorMode: () => void;
 }
 
-const API_BASE_URL = "http://localhost:5000/api/tasks";
+const API_BASE_URL = "https://mi-todo-api.onrender.com/api/tasks";
 
 const Dashboard: React.FC<DashboardProps> = ({ toggleColorMode }) => {
   const navigate = useNavigate();
